@@ -1,19 +1,23 @@
 import io
 import csv
+
 from pypdf import PdfReader, PdfWriter, PageObject
+
 from reportlab.pdfgen import canvas
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.colors import HexColor
 
-# Settings
+
+pdfmetrics.registerFont(TTFont('Quicksand', 'fonts/Quicksand-Bold.ttf')) # set up nice font
+
+
+# CONSTANTS
 COLOURS = {'blue': HexColor('#0cc0df'), # blue represents sensors
            'green': HexColor('#00bf63'), # green represents electronics
            'yellow': HexColor('#ffbd59'), # yellow represents structural components
            'red': HexColor('#ff3131')} # red represents mechanical components
-
-# Constants
 PAGE_WIDTH, PAGE_HEIGHT = A4
 ROWS = 13
 COLS = 5
@@ -23,17 +27,19 @@ Y_PADDING = 10 # shift position within each sticker down by Y_PADDING
 STICKER_WIDTH = (PAGE_WIDTH - 2 * MARGIN_X) / COLS
 STICKER_HEIGHT = (PAGE_HEIGHT - 2 * MARGIN_Y) / ROWS
 FONT_SIZE = 22
-
-pdfmetrics.registerFont(TTFont('Quicksand', 'Quicksand-Bold.ttf')) # set up nice font
+TEMPLATE_LOCATION = "templates/sticker-template.pdf"
+STICKER_CSV = "stickers.csv"
+OUTPUT_FILENAME = "stickers-output.pdf"
 FONT = "Quicksand"
 
 
+
 # Load sticker data
-with open("stickers.csv", newline="") as f:
+with open(STICKER_CSV, newline="") as f:
     stickers = list(csv.DictReader(f))
 
 # Load template and prepare output
-template_pdf = PdfReader("sticker-template.pdf")
+template_pdf = PdfReader(TEMPLATE_LOCATION)
 output = PdfWriter()
 base_page = template_pdf.pages[0]
 
@@ -65,5 +71,5 @@ for i in range(0, len(stickers), ROWS * COLS):
     output.add_page(merged)
 
 # Save final PDF
-with open("stickers-output.pdf", "wb") as f:
+with open(OUTPUT_FILENAME, "wb") as f:
     output.write(f)
